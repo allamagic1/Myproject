@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bit.test.model.Dao">
+	<!--건강정보 게시판 출력 -->
+	<select id="selectList"
+		resultType="com.bit.test.model.entity.VoBBS">
+		<!-- SELECT * FROM (SELECT * FROM BBS ORDER BY IDX) WHERE ROWNUM&gt;=${param1} 
+			AND ROWNUM&lt;=${param2} -->
+		Select * from (select rownum
+		numrow, aa.* from (select * from bbs order by idx) aa ) where numrow &gt;=
+		${param1} and
+		numrow &lt; ${param2} ORDER BY IDX DESC
+	</select>
+	<!--건강정보 게시판 글 작성 -->
+	<insert id="insertOne"
+		parameterType="com.bit.test.model.entity.VoBBS">
+		INSERT INTO BBS
+		VALUES(#{id},seq_bbs.NEXTVAL,#{sub},#{content},0,SYSDATE)
+	</insert>
+	<!-- 건강정보 게시판 상세보기 -->
+	<select id="selectOne"
+		resultType="com.bit.test.model.entity.VoBBS">
+		SELECT * FROM BBS WHERE IDX=#{idx}
+	</select>
+	<!-- 광고게시판 상세보기 -->
+	<select id="selectOne_adbbs" parameterType="int" resultType="com.bit.test.model.entity.VoAdBBS">
+		SELECT * FROM ADBBS WHERE IDX=#{idx}
+	</select>
+	<!-- 건강정보 게시판 글 수정 -->
+	<update id="updateOne"
+		parameterType="com.bit.test.model.entity.VoBBS">
+		UPDATE BBS SET SUB=#{sub},CONTENT=#{content} WHERE
+		IDX=#{idx}
+	</update>
+	<!-- 건강정보 게시판 글 삭제 -->
+	<delete id="deleteOne" parameterType="int">
+		DELETE FROM BBS WHERE IDX=#{idx}
+	</delete>
+	<select id="allCount" resultType="int">
+		SELECT COUNT(*) FROM BBS
+	</select>
+	<!--조회수 업데이트! -->
+	<update id="hitup" parameterType="int">
+		UPDATE BBS SET HIT=HIT+1 WHERE
+		IDX=${value}
+	</update>
+	<!--건강정보 게시판 검색결과 출력 -->
+	<select id="select" resultType="com.bit.test.model.entity.VoBBS">
+		Select * from (select rownum
+		numrow, aa.* from (select * from bbs where ${param1} like
+		'%${param2}%' order by idx) aa ) where numrow &gt;= ${param3} and
+		numrow &lt; ${param4}
+	</select>
+	<!--건강정보 게시판 검색결과 페이징 -->
+	<select id="selectCount" resultType="int">
+		SELECT COUNT(*) FROM BBS
+		WHERE ${param1} LIKE '%${param2}%'
+	</select>
+	<!--회원 가입 -->
+	<insert id="signup"
+		parameterType="com.bit.test.model.entity.VoUsers">
+		INSERT INTO USERS
+		VALUES(#{id},#{pw},#{name})
+	</insert>
+	<!-- 회원 한명의 정보 확인 /회원가입할때 이메일 중복 체크를위한 쿼리문 -->
+	<select id="signupcek"
+		parameterType="com.bit.test.model.entity.VoUsers"
+		resultType="com.bit.test.model.entity.VoUsers">
+		SELECT * FROM USERS WHERE ID=#{id}
+	</select>
+	<select id="login"
+		parameterType="com.bit.test.model.entity.VoUsers"
+		resultType="com.bit.test.model.entity.VoUsers">
+		SELECT PW FROM USERS WHERE ID=#{id}
+	</select>
+
+	<!--댓글 출력 -->
+	<select id="commentList" parameterType="int"
+		resultType="com.bit.test.model.entity.VoComment">
+		SELECT * FROM COMMENTS WHERE IDX=#{idx} ORDER BY KEY DESC
+	</select>
+
+	<!--댓글 입력 -->
+	<insert id="commentAdd"
+		parameterType="com.bit.test.model.entity.VoComment">
+		INSERT INTO COMMENTS VALUES(seq_comment.NEXTVAL,#{content},#{idx},#{id})
+	</insert>
+
+	<!-- 댓글 삭제 -->
+	<delete id="commentDelete" parameterType="int">
+		DELETE FROM COMMENTS WHERE key=#{key}
+	</delete>
+	<delete id="commentDeleteAll" parameterType="int">
+		DELETE FROM COMMENTS WHERE idx=#{idx}
+	</delete>
+
+	<!--(건강정보) 디테일페이지 -->
+	<select id="myBBS"
+		parameterType="com.bit.test.model.entity.VoMyBBS"
+		resultType="com.bit.test.model.entity.VoMyBBS">
+		SELECT * FROM MYBBS WHERE ID=#{id} AND IDX=#{idx}
+	</select>
+	<!--(건강정보)즐겨 찾기 추가 -->
+	<insert id="addMyBBS"
+		parameterType="com.bit.test.model.entity.VoMyBBS">
+		INSERT INTO MYBBS VALUES(#{id},#{idx})
+	</insert>
+	<!--(건강정보)즐겨 찾기 해제 -->
+	<delete id="delMyBBS"
+		parameterType="com.bit.test.model.entity.VoMyBBS">
+		DELETE FROM MYBBS WHERE ID=#{id} AND IDX=#{idx}
+	</delete>
+	<!--(건강정보)글 삭제할때 즐겨찾기 삭제 -->
+	<delete id="bbsdel"
+		parameterType="com.bit.test.model.entity.VoMyBBS">
+		DELETE FROM MYBBS WHERE IDX=#{idx}
+	</delete>
+	
+	<!--(광고) 디테일 페이지 -->
+	<select id="myAdBBS"
+		parameterType="com.bit.test.model.entity.VoMyAdBBS"
+		resultType="com.bit.test.model.entity.VoMyAdBBS">
+		SELECT * FROM MYADBBS WHERE ID=#{id} AND IDX=#{idx}
+	</select>
+	<!--(광고)즐겨 찾기 추가 -->
+	<insert id="addMyAdBBS"
+		parameterType="com.bit.test.model.entity.VoMyAdBBS">
+		INSERT INTO MYADBBS VALUES(#{id},#{idx})
+	</insert>
+	<!--(광고)즐겨 찾기 해제 -->
+	<delete id="delMyAdBBS"
+		parameterType="com.bit.test.model.entity.VoMyAdBBS">
+		DELETE FROM MYADBBS WHERE ID=#{id} AND IDX=#{idx}
+	</delete>
+	<!--(광고)글 삭제할때 즐겨찾기 삭제 -->
+	<delete id="AdBbsdel"
+		parameterType="com.bit.test.model.entity.VoAdBBS">
+		DELETE FROM ADBBS WHERE IDX=#{idx}
+	</delete>
+
+	<!-- 광고 출력 -->
+	<select id="adlist"
+		resultType="com.bit.test.model.entity.VoAdBBS">
+		SELECT * FROM (SELECT * FROM ADBBS ORDER BY IDX) WHERE ROWNUM&lt;7
+	</select>
+	<!--광고 스크롤 -->
+	<select id="adlistplus"
+		parameterType="com.bit.test.model.entity.VoAdBBS"
+		resultType="com.bit.test.model.entity.VoAdBBS">
+		SELECT * FROM (SELECT * FROM ADBBS ORDER BY IDX) WHERE IDX&gt;#{idx} AND
+		ROWNUM&lt;7
+	</select>
+
+	<!-- 광고 추가 -->
+	<insert id="adAdd"
+		parameterType="com.bit.test.model.entity.VoAdBBS">
+		INSERT INTO ADBBS VALUES(seq_adbbs.nextval,#{img},#{sub},#{content})
+	</insert>
+
+	<!-- 회원이 즐겨찾기한 건강정보 게시판 가져오기 -->
+	<select id="selMyBBS" parameterType="String" resultType="com.bit.test.model.entity.VoBBS">
+		SELECT * FROM BBS A WHERE A.IDX IN (SELECT B.IDX FROM MYBBS B WHERE B.ID=#{id} ) ORDER BY A.IDX DESC
+	</select>
+	<!-- 회원이 즐겨찾기한 광고 게시판 가져오기 -->
+	<select id="selMyADBBS" parameterType="String" resultType="com.bit.test.model.entity.VoAdBBS">
+		SELECT * FROM ADBBS A WHERE A.IDX IN (SELECT B.IDX FROM MYADBBS B WHERE B.ID=#{id} ) ORDER BY A.IDX DESC
+	</select>
+	<!-- 회원이 즐겨찾기한 병원/약국 가져오기 -->
+	<select id="selMyHP" parameterType="String" resultType="com.bit.test.model.entity.VoMyHP">
+		SELECT * FROM MYHP WHERE ID=#{id}
+	</select>
+
+	<!--병원/약국 디테일 즐겨찾기 확인작업 -->
+	<select id="myhpselect"
+		parameterType="com.bit.test.model.entity.VoMyHP"
+		resultType="com.bit.test.model.entity.VoMyHP">
+		<if test="id != null">
+			SELECT * FROM MYHP WHERE ID=#{id} AND KEY=#{key}
+		</if>
+	</select>
+	<!--병원/약국 디테일 즐겨찾기 삭제작업 -->
+	<delete id="myhpdel"
+		parameterType="com.bit.test.model.entity.VoMyHP">
+		DELETE FROM MYHP WHERE ID=#{id} AND KEY=#{key}
+	</delete>
+	<!--병원/약국 디테일 즐겨찾기 삽입작업 -->
+	<insert id="myhpadd"
+		parameterType="com.bit.test.model.entity.VoMyHP">
+		INSERT INTO MYHP VALUES(#{id},#{key},#{name},#{url})
+	</insert>
+	
+	<!-- 리뷰/평점 등록하기 -->
+	<insert id="addReview" parameterType="com.bit.test.model.entity.VoReview">
+		INSERT INTO REVIEW VALUES (seq_review.NEXTVAL, #{id}, #{key}, #{score}, #{content}, SYSDATE, #{name}, #{url})
+	</insert>
+	<!-- 리뷰/평점 불러오기 -->
+	<select id="selReview" parameterType="String" resultType="com.bit.test.model.entity.VoReview">
+		SELECT * FROM REVIEW WHERE KEY=#{key} ORDER BY DAY DESC
+	</select>
+	<!-- 내가 쓴 리뷰 불러오기 -->
+	<select id="mypage_Review" parameterType="String" resultType="com.bit.test.model.entity.VoReview">
+		SELECT * FROM REVIEW WHERE ID=#{id} ORDER BY DAY DESC
+	</select>
+	<!-- 리뷰/평점 수정하기 -->
+	<update id="editReview" parameterType="com.bit.test.model.entity.VoReview">
+		UPDATE REVIEW SET SCORE=#{score}, CONTENT=#{content}, DAY=SYSDATE WHERE IDX=#{idx}
+	</update>
+	<!-- 리뷰/평점 삭제하기 -->
+	<delete id="deleteReview" parameterType="int">
+		DELETE FROM REVIEW WHERE IDX=#{idx}
+	</delete>
+	
+	<!-- 내가 쓴 게시판글 불러오기 -->
+	<select id="mypage_BBS" parameterType="String" resultType="com.bit.test.model.entity.VoBBS">
+		SELECT * FROM BBS WHERE ID=#{id}
+	</select>
+</mapper>
